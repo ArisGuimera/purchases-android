@@ -73,6 +73,7 @@ class HTTPClient(
                 urlPathWithVersion,
                 refreshETag
             )
+            response.close()
             if (callResult == null) {
                 log(LogIntent.WARNING, NetworkStrings.ETAG_RETRYING_CALL)
                 return performRequest(path, body, authenticationHeaders, refreshETag = true)
