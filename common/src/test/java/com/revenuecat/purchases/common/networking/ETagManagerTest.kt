@@ -10,12 +10,12 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import okhttp3.Request
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
-import java.net.HttpURLConnection
 import java.net.URL
 
 @RunWith(AndroidJUnit4::class)
@@ -178,7 +178,7 @@ class ETagManagerTest {
         underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.SUCCESS,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = false
         )
@@ -198,7 +198,7 @@ class ETagManagerTest {
         underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.NOT_MODIFIED,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = false
         )
@@ -220,7 +220,7 @@ class ETagManagerTest {
         val result = underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.NOT_MODIFIED,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = false
         )
@@ -243,7 +243,7 @@ class ETagManagerTest {
         val result = underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.NOT_MODIFIED,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = true
         )
@@ -264,7 +264,7 @@ class ETagManagerTest {
         val result = underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.SUCCESS,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = false
         )
@@ -285,7 +285,7 @@ class ETagManagerTest {
         val result = underTest.getHTTPResultFromCacheOrBackend(
             responseCode = RCHTTPStatusCodes.SUCCESS,
             payload = responsePayload,
-            connection = mockURLConnectionETag(eTagInResponse),
+            connection = mockRequestWithETag(eTagInResponse),
             urlPathWithVersion = path,
             refreshETag = true
         )
@@ -297,9 +297,9 @@ class ETagManagerTest {
         assertStoredResponse(path, eTagInResponse, responsePayload)
     }
 
-    private fun mockURLConnectionETag(eTag: String): HttpURLConnection {
-        return mockk<HttpURLConnection>(relaxed = true).also {
-            every { it.getHeaderField(ETAG_HEADER_NAME) } returns eTag
+    private fun mockRequestWithETag(eTag: String): Request {
+        return mockk<Request>(relaxed = true).also {
+            every { it.header(ETAG_HEADER_NAME) } returns eTag
         }
     }
 

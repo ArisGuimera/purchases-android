@@ -8,21 +8,16 @@ package com.revenuecat.purchases.common
 import android.os.Build
 import com.revenuecat.purchases.Store
 import com.revenuecat.purchases.common.networking.ETagManager
-import com.revenuecat.purchases.common.networking.HTTPRequest
 import com.revenuecat.purchases.common.networking.HTTPResult
 import com.revenuecat.purchases.strings.NetworkStrings
 import com.revenuecat.purchases.utils.filterNotNullValues
+import okhttp3.Headers.Companion.toHeaders
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
 import java.net.URL
 
 class HTTPClient(
@@ -30,51 +25,7 @@ class HTTPClient(
     private val eTagManager: ETagManager
 ) {
 
-    private fun buffer(inputStream: InputStream): BufferedReader {
-        return BufferedReader(InputStreamReader(inputStream))
-    }
-
-    private fun buffer(outputStream: OutputStream): BufferedWriter {
-        return BufferedWriter(OutputStreamWriter(outputStream))
-    }
-
-    @Throws(IOException::class)
-    private fun readFully(inputStream: InputStream): String {
-        return readFully(buffer(inputStream))
-    }
-
-    @Throws(IOException::class)
-    private fun readFully(reader: BufferedReader): String {
-        val sb = StringBuilder()
-        var line = reader.readLine()
-        while (line != null) {
-            sb.append(line)
-            line = reader.readLine()
-        }
-        return sb.toString()
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    private fun getInputStream(connection: HttpURLConnection): InputStream? {
-        return try {
-            connection.inputStream
-        } catch (e: Exception) {
-            when (e) {
-                is IllegalArgumentException,
-                is IOException -> {
-                    log(LogIntent.WARNING, NetworkStrings.PROBLEM_CONNECTING.format(e.message))
-                    connection.errorStream
-                }
-                else -> throw e
-            }
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun writeFully(writer: BufferedWriter, body: String) {
-        writer.write(body)
-        writer.flush()
-    }
+    private val client = OkHttpClient.Builder().build()
 
     /** Performs a synchronous web request to the RevenueCat API
      * @param path The resource being requested
@@ -91,53 +42,43 @@ class HTTPClient(
         authenticationHeaders: Map<String, String>,
         refreshETag: Boolean = false
     ): HTTPResult {
+        val httpRequest = Request.Builder()
+
         val jsonBody = body?.convert()
 
         val fullURL: URL
-        val connection: HttpURLConnection
-        val httpRequest: HTTPRequest
         val urlPathWithVersion = "/v1$path"
-        try {
-            fullURL = URL(appConfig.baseURL, urlPathWithVersion)
 
-            val headers = getHeaders(authenticationHeaders, urlPathWithVersion, refreshETag)
-            httpRequest = HTTPRequest(fullURL, headers, jsonBody)
+        fullURL = URL(appConfig.baseURL, urlPathWithVersion)
 
-            connection = getConnection(httpRequest)
-        } catch (e: MalformedURLException) {
-            throw RuntimeException(e)
+        val headers = getHeaders(authenticationHeaders, urlPathWithVersion, refreshETag).toHeaders()
+
+        httpRequest.url(fullURL)
+            .headers(headers)
+
+        jsonBody?.let {
+            httpRequest.post(it.toString().toRequestBody())
         }
 
-        val inputStream = getInputStream(connection)
+        val request = httpRequest.build()
 
-        val payload: String?
-        val responseCode: Int
-        try {
-            log(LogIntent.DEBUG, NetworkStrings.API_REQUEST_STARTED.format(connection.requestMethod, path))
-            responseCode = connection.responseCode
-            payload = inputStream?.let { readFully(it) }
-        } finally {
-            inputStream?.close()
-            connection.disconnect()
+        log(LogIntent.DEBUG, NetworkStrings.API_REQUEST_STARTED.format(request.method, path))
+        client.newCall(request).execute().use { response ->
+            log(LogIntent.DEBUG, NetworkStrings.API_REQUEST_COMPLETED.format(request.method, path, response.code))
+            val payload = response.body?.string() ?: throw IOException(NetworkStrings.HTTP_RESPONSE_PAYLOAD_NULL)
+            val callResult: HTTPResult? = eTagManager.getHTTPResultFromCacheOrBackend(
+                response.code,
+                payload,
+                request,
+                urlPathWithVersion,
+                refreshETag
+            )
+            if (callResult == null) {
+                log(LogIntent.WARNING, NetworkStrings.ETAG_RETRYING_CALL)
+                return performRequest(path, body, authenticationHeaders, refreshETag = true)
+            }
+            return callResult
         }
-
-        log(LogIntent.DEBUG, NetworkStrings.API_REQUEST_COMPLETED.format(connection.requestMethod, path, responseCode))
-        if (payload == null) {
-            throw IOException(NetworkStrings.HTTP_RESPONSE_PAYLOAD_NULL)
-        }
-
-        val callResult: HTTPResult? = eTagManager.getHTTPResultFromCacheOrBackend(
-            responseCode,
-            payload,
-            connection,
-            urlPathWithVersion,
-            refreshETag
-        )
-        if (callResult == null) {
-            log(LogIntent.WARNING, NetworkStrings.ETAG_RETRYING_CALL)
-            return performRequest(path, body, authenticationHeaders, refreshETag = true)
-        }
-        return callResult
     }
 
     fun clearCaches() {
@@ -186,20 +127,6 @@ class HTTPClient(
             this.ifSuccess()
         } else {
             this
-        }
-    }
-
-    private fun getConnection(request: HTTPRequest): HttpURLConnection {
-        return (request.fullURL.openConnection() as HttpURLConnection).apply {
-            request.headers.forEach { (key, value) ->
-                addRequestProperty(key, value)
-            }
-            request.body?.let { body ->
-                doOutput = true
-                requestMethod = "POST"
-                val os = outputStream
-                writeFully(buffer(os), body.toString())
-            }
         }
     }
 

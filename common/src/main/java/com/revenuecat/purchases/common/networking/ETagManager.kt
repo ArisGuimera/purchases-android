@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import com.revenuecat.purchases.common.LogIntent
 import com.revenuecat.purchases.common.log
 import com.revenuecat.purchases.strings.NetworkStrings
+import okhttp3.Request
 import org.json.JSONObject
-import java.net.HttpURLConnection
 
 private const val SERIALIZATION_NAME_ETAG = "eTag"
 private const val SERIALIZATION_NAME_HTTPRESULT = "httpResult"
@@ -49,7 +49,7 @@ class ETagManager(
     internal fun getHTTPResultFromCacheOrBackend(
         responseCode: Int,
         payload: String,
-        connection: HttpURLConnection,
+        connection: Request,
         urlPathWithVersion: String,
         refreshETag: Boolean
     ): HTTPResult? {
@@ -124,4 +124,4 @@ class ETagManager(
     }
 }
 
-internal fun HttpURLConnection.getETagHeader(): String? = this.getHeaderField(ETAG_HEADER_NAME)
+internal fun Request.getETagHeader(): String? = this.header(ETAG_HEADER_NAME)

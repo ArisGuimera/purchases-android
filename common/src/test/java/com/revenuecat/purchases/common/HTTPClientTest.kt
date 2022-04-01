@@ -23,11 +23,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
 import org.json.JSONException
-import org.json.JSONObject
 import org.junit.After
-import org.junit.AfterClass
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.net.URL
@@ -88,7 +85,7 @@ class HTTPClientTest {
             expectedResult = HTTPResult(200, "{}")
         )
 
-        client.performRequest(path, null, mapOf("" to ""))
+        client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         val request = server.takeRequest()
         assertThat(request.method).`as`("method request is GET").isEqualTo("GET")
@@ -103,7 +100,7 @@ class HTTPClientTest {
             expectedResult = HTTPResult(223, "{}")
         )
 
-        val result = client.performRequest(path, null, mapOf("" to ""))
+        val result = client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         server.takeRequest()
 
@@ -118,7 +115,7 @@ class HTTPClientTest {
             expectedResult = HTTPResult(223, "{'response': 'OK'}")
         )
 
-        val result = client.performRequest(path, null, mapOf("" to ""))
+        val result = client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         server.takeRequest()
 
@@ -136,7 +133,7 @@ class HTTPClientTest {
         )
 
         try {
-            client.performRequest(path, null, mapOf("" to ""))
+            client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
         } finally {
             server.takeRequest()
         }
@@ -171,7 +168,7 @@ class HTTPClientTest {
             expectedResult
         )
 
-        client.performRequest(path, null, mapOf("" to ""))
+        client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         val request = server.takeRequest()
 
@@ -204,7 +201,7 @@ class HTTPClientTest {
         )
 
         client = HTTPClient(appConfig, mockETagManager)
-        client.performRequest(path, null, mapOf("" to ""))
+        client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         val request = server.takeRequest()
 
@@ -223,7 +220,7 @@ class HTTPClientTest {
         val body = HashMap<String, String>()
         body["user_id"] = "jerry"
 
-        client.performRequest(path, body, mapOf("" to ""))
+        client.performRequest(path, body, mapOf("Authorization" to "Bearer api_key"))
 
         val request = server.takeRequest()
         assertThat(request.method).`as`("method is POST").isEqualTo("POST")
@@ -242,7 +239,7 @@ class HTTPClientTest {
             expectedResult
         )
 
-        client.performRequest(path, null, mapOf("" to ""))
+        client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         val request = server.takeRequest()
 
@@ -318,7 +315,7 @@ class HTTPClientTest {
             )
         } returns expectedResult
 
-        val result = client.performRequest(path, null, mapOf("" to ""))
+        val result = client.performRequest(path, null, mapOf("Authorization" to "Bearer api_key"))
 
         server.takeRequest()
         server.takeRequest()
