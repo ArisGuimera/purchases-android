@@ -135,12 +135,12 @@ jobs:
     executor:
       name: android/android-machine
       resource-class: xlarge
-      tag: 2021.10.1
+      tag: 2022.04.1
     steps:
       - checkout
       - android/start-emulator-and-run-tests:
           test-command: ./gradlew connectedDebugAndroidTest
-          system-image: system-images;android-31;google_apis;x86
+          system-image: system-images;android-30;google_apis;x86
       - run:
           name: Save test results
           command: |
