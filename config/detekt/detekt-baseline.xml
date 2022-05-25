@@ -3,14 +3,13 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexMethod:EntitlementInfo.kt$EntitlementInfo$ override fun equals(other: Any?): Boolean</ID>
-    <ID>EmptyCatchBlock:AdvertisingIdClient.kt$AdvertisingIdClient.AdvertisingConnection${ }</ID>
     <ID>EmptyCatchBlock:Purchases.kt$Purchases.Companion.&lt;no name provided>${ }</ID>
-    <ID>EmptyFunctionBlock:AdvertisingIdClient.kt$AdvertisingIdClient.AdvertisingConnection${}</ID>
     <ID>Filename:com.revenuecat.purchases.PostingTransactionsTestsBillingClient4.kt:1</ID>
     <ID>Filename:com.revenuecat.purchases.google.BillingResponseCodeTestBillingClient4.kt:1</ID>
     <ID>Filename:com.revenuecat.purchases.google.BillingWrapperTestBillingClient4.kt:1</ID>
     <ID>Filename:com.revenuecat.purchases.google.ParcelableTestsBillingClient4.kt:1</ID>
     <ID>LargeClass:BillingWrapperTestBillingClient4.kt$BillingWrapperTest</ID>
+    <ID>LargeClass:PriceExtractorTest.kt$PriceExtractorTest</ID>
     <ID>LargeClass:Purchases.kt$Purchases : LifecycleDelegate</ID>
     <ID>LongMethod:PostingTransactionsTestsBillingClient4.kt$PostingTransactionsTests$@Before fun setup()</ID>
     <ID>LongMethod:Purchases.kt$Purchases$ fun restorePurchases( callback: ReceiveCustomerInfoCallback )</ID>
@@ -44,8 +43,6 @@
     <ID>SwallowedException:DeviceCache.kt$DeviceCache$catch (e: NullPointerException) { emptySet() }</ID>
     <ID>SwallowedException:Purchases.kt$Purchases.Companion.&lt;no name provided>$catch (e: IllegalArgumentException) { // Play Services not available callback.onReceived(false) }</ID>
     <ID>SwallowedException:Purchases.kt$Purchases.Companion.&lt;no name provided>$catch (e: IllegalArgumentException) { }</ID>
-    <ID>ThrowingExceptionsWithoutMessageOrCause:AdvertisingIdClient.kt$AdvertisingIdClient.AdvertisingConnection$IllegalStateException()</ID>
-    <ID>TooGenericExceptionCaught:AdvertisingIdClient.kt$AdvertisingIdClient$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DeviceCache.kt$DeviceCache$e: NullPointerException</ID>
     <ID>TooGenericExceptionThrown:HTTPClient.kt$HTTPClient$throw RuntimeException(e)</ID>
     <ID>TooManyFunctions:AmazonBilling.kt$AmazonBilling : BillingAbstractProductDataResponseListenerPurchaseResponseListenerPurchaseUpdatesResponseListenerUserDataResponseListener</ID>

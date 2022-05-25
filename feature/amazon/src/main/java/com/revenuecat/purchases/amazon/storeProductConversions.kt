@@ -79,6 +79,7 @@ internal fun String.parsePriceUsingRegex(): BigDecimal? {
     return matcher.takeIf { it.find() }?.let {
         val dirtyPrice = matcher.group()
         var price = dirtyPrice.replace(" ", "")
+        price = price.trim()
         val split = price.split(".", ",")
         if (split.size != 1) {
             // Assuming all prices we get have 2 decimal points

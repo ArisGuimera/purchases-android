@@ -19,7 +19,7 @@ release-tags: &release-tags
 
 version: 2.1
 orbs:
-  android: circleci/android@0.2.1
+  android: circleci/android@2.0.3
   android-wordpress-orb: wordpress-mobile/android@1.0.15
   gcp-cli: circleci/gcp-cli@2.1.0
 
@@ -130,6 +130,27 @@ jobs:
           path: build/reports
       - store_test_results:
           path: build/test-results
+
+  android-test:
+    executor:
+      name: android/android-machine
+      resource-class: xlarge
+      tag: 2021.10.1
+    steps:
+      - checkout
+      - android/start-emulator-and-run-tests:
+          test-command: ./gradlew connectedDebugAndroidTest
+          system-image: system-images;android-30;google_apis;x86
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
 
   docs-deploy:
     executor: android-executor
@@ -339,6 +360,7 @@ workflows:
     jobs:
       - test
       - assemble-sample-app
+      - android-test
 
   integration-test:
     jobs:
