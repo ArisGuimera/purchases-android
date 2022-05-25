@@ -139,8 +139,9 @@ jobs:
     steps:
       - checkout
       - android/start-emulator-and-run-tests:
-          test-command: ./gradlew connectedDebugAndroidTest
+          test-command: ./gradlew connectedAndroidTest
           system-image: system-images;android-30;google_apis;x86
+          post-emulator-launch-assemble-command: ./gradlew assembleAndroidTest
       - run:
           name: Save test results
           command: |
