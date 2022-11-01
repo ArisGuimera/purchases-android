@@ -2,13 +2,13 @@ package com.revenuecat.purchases.utils
 
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchaseHistoryRecord
 import com.android.billingclient.api.PurchaseHistoryResponseListener
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.QueryPurchaseHistoryParams
 import com.android.billingclient.api.QueryPurchasesParams
-import com.android.billingclient.api.SkuDetails
 import io.mockk.clearStaticMockk
 import io.mockk.every
 import io.mockk.mockk
@@ -26,7 +26,7 @@ fun stubSkuDetails(
     subscriptionPeriod: String = "P1M",
     freeTrialPeriod: String? = null,
     introductoryPricePeriod: String? = null
-): SkuDetails = SkuDetails("""
+): ProductDetails = ProductDetails("""
             {
               "skuDetailsToken":"AEuhp4KxWQR-b-OAOXVicqHM4QqnqK9vkPnOXw0vSB9zWPBlTsW8TmtjSEJ_rJ6f0_-i",
               "productId":"$productId",

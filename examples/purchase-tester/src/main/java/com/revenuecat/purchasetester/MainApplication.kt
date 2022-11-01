@@ -5,8 +5,6 @@ import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.os.StrictMode
-import android.os.StrictMode.VmPolicy
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -25,13 +23,13 @@ class MainApplication : Application(), UpdatedCustomerInfoListener {
         super.onCreate()
 
         if (BuildConfig.DEBUG) {
-            StrictMode.setVmPolicy(
-                VmPolicy.Builder()
-                    .detectLeakedClosableObjects()
-                    .penaltyLog()
-                    .penaltyDeath()
-                    .build()
-            )
+//            StrictMode.setVmPolicy(
+//                VmPolicy.Builder()
+//                    .detectLeakedClosableObjects()
+//                    .penaltyLog()
+//                    .penaltyDeath()
+//                    .build()
+//            )
         }
 
         Purchases.debugLogsEnabled = true
